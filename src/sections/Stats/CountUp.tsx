@@ -1,0 +1,3 @@
+import { useEffect, useRef, useState } from 'react'
+import { useInView } from 'framer-motion'
+export function CountUp({ end, suffix = '' }: { end: number; suffix?: string }) { const ref = useRef<HTMLSpanElement>(null); const inView = useInView(ref, { once: true, margin: '-70px' }); const [value, setValue] = useState(0); useEffect(() => { if (!inView) return; let frame = 0; const start = performance.now(); const tick = (now: number) => { const progress = Math.min((now - start) / 900, 1); setValue(Math.round(end * (1 - Math.pow(1 - progress, 3)))); if (progress < 1) frame = requestAnimationFrame(tick) }; frame = requestAnimationFrame(tick); return () => cancelAnimationFrame(frame) }, [end, inView]); return <span ref={ref}>{value}{suffix}</span> }

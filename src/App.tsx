@@ -1,49 +1,49 @@
-import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion, useInView, useReducedMotion, type Variants } from 'framer-motion'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ArrowDown, ArrowRight, ArrowUpRight, BriefcaseBusiness, Check, Code2, Download, Mail, MapPin, Menu, Sparkles, X, Zap } from 'lucide-react'
-import profileImage from './assets/images/profile-placeholder.png'
-import './App.css'
-
-gsap.registerPlugin(ScrollTrigger)
-
-const projects = [
-  { number: '01', title: 'Suite Booking Website', copy: 'A polished booking experience built for quick comparisons, clear availability, and a confident checkout journey.', tags: ['React.js', 'Firebase', 'Payment gateway'], tone: 'suite' },
-  { number: '02', title: 'Apartment Management System', copy: 'A multi-role workspace for property operations, resident coordination, location data, and secure payments.', tags: ['React.js', 'Google Maps API', 'Payment gateway'], tone: 'apartment' },
-  { number: '03', title: 'Hotel & Restaurant Booking Platform', copy: 'A unified platform for stays and dining with dynamic menus, booking flows, and Stripe payments.', tags: ['React.js', 'Stripe', 'Firebase'], tone: 'hotel' },
-  { number: '04', title: 'E-Commerce Flower Application', copy: 'A responsive flower storefront with multi-role workflows, delivery mapping, and payment support.', tags: ['React.js', 'Firebase', 'Google Maps API'], tone: 'flower' },
-]
-const skills = ['React.js', 'JavaScript ES6+', 'Redux Toolkit', 'Context API', 'React Router', 'Axios', 'Tailwind CSS', 'shadcn/ui', 'Material UI', 'Ant Design', 'Firebase', 'Firestore', 'Stripe', 'Google Maps API', 'REST APIs', 'Git & GitHub', 'Vite', 'Vercel']
-
-function SectionTitle({ number, children }: { number: string; children: React.ReactNode }) { return <div className="section-title"><span>{number}</span><i /> <h2>{children}</h2></div> }
-function CountUp({ end, suffix = '' }: { end: number; suffix?: string }) {
-  const ref = useRef<HTMLSpanElement>(null); const inView = useInView(ref, { once: true, margin: '-70px' }); const [value, setValue] = useState(0)
-  useEffect(() => { if (!inView) return; let frame = 0; const start = performance.now(); const tick = (now: number) => { const progress = Math.min((now - start) / 900, 1); setValue(Math.round(end * (1 - Math.pow(1 - progress, 3)))); if (progress < 1) frame = requestAnimationFrame(tick) }; frame = requestAnimationFrame(tick); return () => cancelAnimationFrame(frame) }, [end, inView])
-  return <span ref={ref}>{value}{suffix}</span>
-}
-function LoadingScreen({ done }: { done: () => void }) {
-  const [value, setValue] = useState(0); const reduced = useReducedMotion()
-  useEffect(() => { if (reduced) { done(); return }; const begin = performance.now(); let id = 0; const render = (now: number) => { const next = Math.min(Math.round(((now - begin) / 900) * 100), 100); setValue(next); if (next < 100) id = requestAnimationFrame(render); else window.setTimeout(done, 260) }; id = requestAnimationFrame(render); return () => cancelAnimationFrame(id) }, [done, reduced])
-  return <motion.div className="loader" exit={{ y: '-100%' }} transition={{ duration: 0.65, ease: [0.76, 0, 0.24, 1] }}><div><small>LOADING PORTFOLIO</small><strong>{String(value).padStart(2, '0')}<em>%</em></strong><span /></div></motion.div>
-}
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { LoadingScreen } from "./sections/Loading/LoadingScreen";
+import { Navbar } from "./sections/Navbar/Navbar";
+import { Hero } from "./sections/Hero/Hero";
+import { About } from "./sections/About/About";
+import { Stats } from "./sections/Stats/Stats";
+import { Skills } from "./sections/Skills/Skills";
+import { Projects } from "./sections/Projects/Projects";
+import { HowIBuild } from "./sections/HowIBuild/HowIBuild";
+import { Experience } from "./sections/Experience/Experience";
+import { Contact } from "./sections/Contact/Contact";
+import { Footer } from "./sections/Footer/Footer";
+import "./App.css";
 
 function App() {
-  const [loaded, setLoaded] = useState(false); const [menuOpen, setMenuOpen] = useState(false); const [activeProject, setActiveProject] = useState(0); const heroRef = useRef<HTMLElement>(null); const projectRef = useRef<HTMLElement>(null); const reduced = useReducedMotion()
-  useEffect(() => { if (reduced) return; const ctx = gsap.context(() => { gsap.to('.hero-word', { yPercent: -12, ease: 'none', scrollTrigger: { trigger: heroRef.current, start: 'top top', end: 'bottom top', scrub: true } }); gsap.to('.portrait-wrap', { yPercent: 7, scale: 1.03, ease: 'none', scrollTrigger: { trigger: heroRef.current, start: 'top top', end: 'bottom top', scrub: true } }); const media = gsap.matchMedia(); media.add('(min-width: 900px)', () => { const cards = gsap.utils.toArray<HTMLElement>('.project-card'); gsap.to(cards, { xPercent: -78 * (cards.length - 1), ease: 'none', scrollTrigger: { trigger: projectRef.current, start: 'top top', end: '+=2400', pin: true, scrub: 1, snap: 1 / (cards.length - 1) } }) }); return () => media.revert() }); return () => ctx.revert() }, [reduced])
-  const reveal: Variants = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } } }; const goTo = (id: string) => { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); setMenuOpen(false) }
-  return <AnimatePresence mode="wait">{!loaded ? <LoadingScreen done={() => setLoaded(true)} /> : <motion.div key="portfolio" initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}>
-    <header className="navbar"><button className="brand" onClick={() => goTo('home')} aria-label="Back to home">PRANAV <b>P.</b></button><nav aria-label="Primary navigation">{[['01', 'HOME', 'home'], ['02', 'ABOUT', 'about'], ['03', 'SKILLS', 'skills'], ['04', 'PROJECTS', 'projects'], ['05', 'EXPERIENCE', 'experience'], ['06', 'CONTACT', 'contact']].map(([n, label, id]) => <button key={id} onClick={() => goTo(id)}><small>{n}.</small> {label}</button>)}</nav><button className="talk-button" onClick={() => goTo('contact')}>LET'S TALK <ArrowRight size={16} /></button><button className="menu-button" aria-label="Open navigation" onClick={() => setMenuOpen(true)}><Menu size={22} /></button></header>
-    <AnimatePresence>{menuOpen && <motion.div className="mobile-menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><button aria-label="Close navigation" onClick={() => setMenuOpen(false)}><X /></button>{[['HOME', 'home'], ['ABOUT', 'about'], ['SKILLS', 'skills'], ['PROJECTS', 'projects'], ['EXPERIENCE', 'experience'], ['CONTACT', 'contact']].map(([label, id], index) => <motion.button key={id} initial={{ y: 18, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: index * 0.05 }} onClick={() => goTo(id)}>{label}<ArrowUpRight /></motion.button>)}</motion.div>}</AnimatePresence>
-    <main>
-      <section id="home" className="hero-section" ref={heroRef}><div className="hero-index"><b>01</b><span /><small>06</small></div><div className="hero-intro"><motion.div className="hero-word" variants={reveal}><h1>LET'S<br />TALK<span>*</span></h1></motion.div><motion.div variants={reveal}><i className="orange-line" /><p>I build scalable, high-performance web applications with exceptional user experiences.</p><button onClick={() => goTo('about')} className="scroll-link">SCROLL DOWN <ArrowDown size={15} /></button></motion.div></div><motion.div className="hero-identity" variants={reveal}><p>MY NAME IS</p><h3>PRANAV P<span>.</span></h3><h4>FRONTEND<br /><b>DEVELOPER</b></h4><div><MapPin size={15} /> KERALA, INDIA</div></motion.div><motion.div className="portrait-wrap" variants={reveal}><div className="portrait-orbit" /><img src={profileImage} alt="Placeholder portrait for Pranav P." /><div className="dot-field" /></motion.div><motion.aside className="socials" variants={reveal}><span>FOLLOW ME</span><a href="https://github.com/pranavpasad242" target="_blank" rel="noreferrer" aria-label="GitHub"><Code2 /></a><a href="https://www.linkedin.com/in/pranav-p" target="_blank" rel="noreferrer" aria-label="LinkedIn"><BriefcaseBusiness /></a><a href="mailto:pranavpasad242@gmail.com" aria-label="Email"><Mail /></a></motion.aside></section>
-      <section id="about" className="section about-section"><SectionTitle number="02">ABOUT ME</SectionTitle><div className="about-grid"><div className="about-art"><div className="mini-sun" /><span>BUILDING FOR<br />THE WEB</span></div><div className="about-copy"><p>Frontend Developer with <b>2+ years</b> of hands-on experience building and maintaining multi-role web applications using React.js and modern JavaScript.</p><p>I specialize in reusable components, thoughtful state management, API integration, and reliable user experiences.</p><a className="outline-button" href="/assets/Pranav-P-Resume.pdf" download>DOWNLOAD RESUME <Download size={16} /></a></div><dl className="details"><div><dt><BriefcaseBusiness /> EXPERIENCE</dt><dd>2+ Years</dd></div><div><dt><MapPin /> LOCATION</dt><dd>Kerala, India</dd></div><div><dt><Mail /> EMAIL</dt><dd>pranavpasad242@gmail.com</dd></div><div><dt><Check /> AVAILABILITY</dt><dd>Open to Work</dd></div></dl></div></section>
-      <section className="split-section"><div className="stats section"><SectionTitle number="03">STATS</SectionTitle><div className="stat-grid"><div><BriefcaseBusiness /><strong><CountUp end={2} suffix="+" /></strong><span>YEARS EXPERIENCE</span></div><div><Sparkles /><strong><CountUp end={4} suffix="+" /></strong><span>MAJOR PROJECTS</span></div><div><Code2 /><strong><CountUp end={4} suffix="+" /></strong><span>PRODUCT DOMAINS</span></div><div><Zap /><strong>100%</strong><span>COMMITMENT</span></div></div></div><div id="skills" className="skills section"><SectionTitle number="04">SKILLS</SectionTitle><div className="skills-grid">{skills.map((skill, index) => <motion.div key={skill} whileHover={{ y: -3 }}><span>{String(index + 1).padStart(2, '0')}</span>{skill}<ArrowUpRight size={14} /></motion.div>)}</div></div></section>
-      <section id="projects" className="section projects-section" ref={projectRef}><SectionTitle number="05">SELECTED PROJECTS</SectionTitle><div className="project-progress"><span>SCROLL TO EXPLORE</span><div>{projects.map((project, index) => <button onClick={() => setActiveProject(index)} className={index === activeProject ? 'active' : ''} aria-label={`Select project ${project.number}`} key={project.number} />)}</div></div><div className="projects-track">{projects.map((project, index) => <motion.article className={`project-card ${project.tone}`} key={project.title} whileHover={{ y: -6 }} onViewportEnter={() => setActiveProject(index)} viewport={{ amount: 0.6 }}><div className="project-visual"><span>{project.number}</span><div className="screen"><div /><div /><div /></div><i>VIEW PROJECT <ArrowUpRight size={16} /></i></div><div className="project-meta"><h3>{project.title}</h3><p>{project.copy}</p><div>{project.tags.map(tag => <span key={tag}>{tag}</span>)}</div></div></motion.article>)}</div></section>
-      <section className="build-section section"><SectionTitle number="06">HOW I BUILD</SectionTitle><div className="build-steps">{[['01', 'UNDERSTAND', 'I explore requirements thoroughly and align on the right solution.'], ['02', 'PLAN', 'I structure features, architecture and user flows.'], ['03', 'BUILD', 'I build scalable, reusable and maintainable code.'], ['04', 'OPTIMIZE', 'I optimize performance, accessibility and experience.'], ['05', 'DEPLOY', 'I test, deploy and ensure everything runs seamlessly.']].map(([number, title, copy], index) => <motion.div key={title} initial="hidden" whileInView="show" viewport={{ once: true }} variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { delay: index * .08 } } }}><b>{number}</b><span /><h3>{title}</h3><p>{copy}</p></motion.div>)}</div></section>
-      <section id="experience" className="experience-section section"><SectionTitle number="07">EXPERIENCE</SectionTitle><div className="experience-grid"><div className="timeline"><article><time>May 2024 – Apr 2025</time><h3>Frontend Developer Intern</h3><p>Zoiteckh Inc. | Remote</p></article><article><time>May 2025 – Aug 2026</time><h3>Frontend Developer</h3><p>Zoiteckh Inc. | Remote</p></article></div><div className="experience-notes"><p>Promoted to permanent Frontend Developer based on performance.</p><p>Worked on multi-role applications, reusable components, APIs and integrations.</p></div></div></section>
-      <section id="contact" className="contact-section section"><SectionTitle number="08">LET'S TALK</SectionTitle><div className="contact-grid"><div><h2>LET'S<br />TALK<span>.</span></h2></div><div className="contact-cta"><p>Have a project in mind?<br />I'd love to help bring it to life.</p><a className="dark-button" href="mailto:pranavpasad242@gmail.com">START A PROJECT <ArrowRight size={16} /></a></div><div className="contact-cards"><a href="mailto:pranavpasad242@gmail.com"><Mail /><small>EMAIL</small><span>pranavpasad242@gmail.com</span></a><a href="https://www.linkedin.com/in/pranav-p" target="_blank" rel="noreferrer"><BriefcaseBusiness /><small>LINKEDIN</small><span>linkedin.com/in/pranav-p</span></a><a href="https://github.com/pranavpasad242" target="_blank" rel="noreferrer"><Code2 /><small>GITHUB</small><span>github.com/pranavpasad242</span></a></div></div></section>
-    </main><footer><button className="brand" onClick={() => goTo('home')}>PRANAV <b>P.</b></button><span>© 2026 Pranav P. All rights reserved.</span><button onClick={() => goTo('home')}>BACK TO TOP <ArrowUpRight size={15} /></button></footer>
-  </motion.div>}</AnimatePresence>
+  const [loaded, setLoaded] = useState(false);
+  const goTo = (id: string) =>
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  return (
+    <AnimatePresence mode="wait">
+      {!loaded ? (
+        <LoadingScreen done={() => setLoaded(true)} />
+      ) : (
+        <motion.div
+          key="portfolio"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <Navbar goTo={goTo} />
+          <main>
+            <Hero goTo={goTo} />
+            <About />
+            <section className="split-section">
+              <Stats />
+              <Skills />
+            </section>
+            <Projects />
+            <HowIBuild />
+            <Experience />
+            <Contact />
+          </main>
+          <Footer goTo={goTo} />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 }
-export default App
+export default App;

@@ -1,0 +1,7 @@
+import { useRef, useState } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
+import { ArrowUpRight } from 'lucide-react'
+import { SectionTitle } from '../../components/common/SectionTitle'
+import { projects } from '../../data/projects'
+import { useProjectScroll } from '../../hooks/useProjectScroll'
+export function Projects() { const [active, setActive] = useState(0); const ref = useRef<HTMLElement>(null); const reduced = useReducedMotion(); useProjectScroll(ref, reduced); return <section id="projects" className="section projects-section" ref={ref}><SectionTitle number="05">SELECTED PROJECTS</SectionTitle><div className="project-progress"><span>SCROLL TO EXPLORE</span><div>{projects.map((project, index) => <button onClick={() => setActive(index)} className={index === active ? 'active' : ''} aria-label={`Select project ${project.number}`} key={project.number} />)}</div></div><div className="projects-track">{projects.map((project, index) => <motion.article className={`project-card ${project.tone}`} key={project.title} whileHover={{ y: -6 }} onViewportEnter={() => setActive(index)} viewport={{ amount: .6 }}><div className="project-visual"><span>{project.number}</span><div className="screen"><div /><div /><div /></div><i>VIEW PROJECT <ArrowUpRight size={16} /></i></div><div className="project-meta"><h3>{project.title}</h3><p>{project.copy}</p><div>{project.tags.map(tag => <span key={tag}>{tag}</span>)}</div></div></motion.article>)}</div></section> }
