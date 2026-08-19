@@ -1,19 +1,48 @@
-import { useEffect, type RefObject } from 'react'
+import { useLayoutEffect, type RefObject } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
-export function useProjectScroll(ref: RefObject<HTMLElement | null>, reduceMotion: boolean | null) {
-  useEffect(() => {
-    if (reduceMotion || !ref.current) return
-    const context = gsap.context(() => {
-      const media = gsap.matchMedia()
-      media.add('(min-width: 900px)', () => {
-        const cards = gsap.utils.toArray<HTMLElement>('.project-card')
-        gsap.to(cards, { xPercent: -78 * (cards.length - 1), ease: 'none', scrollTrigger: { trigger: ref.current, start: 'top top', end: '+=2400', pin: true, scrub: 1, anticipatePin: 1 } })
+export function useProjectScroll(
+  sectionRef: RefObject<HTMLElement | null>,
+  viewportRef: RefObject<HTMLDivElement | null>,
+  trackRef: RefObject<HTMLDivElement | null>,
+  reduceMotion: boolean | null,
+) {
+  useLayoutEffect(() => {
+    const section = sectionRef.current
+    const viewport = viewportRef.current
+    const track = trackRef.current
+
+    if (reduceMotion || !section || !viewport || !track) return
+
+    const mm = gsap.matchMedia()
+
+    mm.add('(min-width: 1024px)', () => {
+      const getDistance = () => Math.max(0, track.scrollWidth - viewport.clientWidth)
+
+      const tween = gsap.to(track, {
+        x: () => -getDistance(),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: () => `+=${getDistance()}`,
+          pin: true,
+          scrub: 1,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        },
       })
-      return () => media.revert()
-    }, ref)
-    return () => context.revert()
-  }, [ref, reduceMotion])
+
+      return () => {
+        tween.scrollTrigger?.kill()
+        tween.kill()
+      }
+    })
+
+    return () => {
+      mm.revert()
+    }
+  }, [sectionRef, viewportRef, trackRef, reduceMotion])
 }
