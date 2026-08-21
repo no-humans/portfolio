@@ -1,1 +1,22 @@
-export const skills = ['React.js', 'JavaScript ES6+', 'Redux Toolkit', 'Context API', 'React Router', 'Axios', 'Tailwind CSS', 'shadcn/ui', 'Material UI', 'Ant Design', 'Firebase', 'Firestore', 'Stripe', 'Google Maps API', 'REST APIs', 'Git & GitHub', 'Vite', 'Vercel']
+export const skills = [
+  "React.js",
+  "Next.js",
+  "JavaScript ES6+",
+  "TypeScrip",
+  "Redux Toolkit",
+  "Context API",
+  "React Router",
+  "Axios",
+  "Tailwind CSS",
+  "shadcn/ui",
+  "Material UI",
+  "Ant Design",
+  "Firebase",
+  "Firestore",
+  "Stripe",
+  "Google Maps API",
+  "REST APIs",
+  "Git & GitHub",
+  "Vite",
+  "Vercel",
+];
